@@ -86,16 +86,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         return token
 
 
-class Profile:
+class Profile(models.Model):
     user_id = models.OneToOneField(
         to=User,
         on_delete=models.CASCADE,
         related_name='user_profile',
         verbose_name=_('Пользователь')
     )
-    first_name = models.CharField
-    last_name = models.CharField
-    birth_date = models.DateTimeField
+    first_name = models.CharField(
+        max_length=150, unique=True, verbose_name=_('Имя')
+    )
+    last_name = models.CharField(
+        max_length=150, unique=True, verbose_name=_('Фамилия')
+    )
+    birth_date = models.DateField(verbose_name=_('Дата рождения'))
+    email = models.EmailField(unique=True, verbose_name=_('Почта'))
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -104,3 +109,7 @@ class Profile:
         ordering = ('-created_at',)
         verbose_name = _('Профиль')
         verbose_name_plural = _('Профили')
+
+    def __str__(self):
+        return f"{self.email}"
+
