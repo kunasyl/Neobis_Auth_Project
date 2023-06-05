@@ -10,7 +10,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ['email']
+        # extra_kwargs = {
+        #     'email': {'required': True},
+        # }
 
     def create(self, validated_data):
         request = self.context.get('request')

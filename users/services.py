@@ -32,7 +32,7 @@ class EmailServices:
         mail_subject = "Активация аккаунта"
         message = render_to_string("users/email_templates/activate_account.html", {
         # message = render_to_string("templates/activate_account.html", {
-            'user': user.username,
+            'user': user.email,
             'domain': get_current_site(request).domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user),

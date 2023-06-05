@@ -11,14 +11,16 @@ class UserManager(BaseUserManager):
         """
         Создает и возвращает пользователя с имэйлом, паролем и именем.
         """
-        if username is None:
-            raise TypeError('Users must have a username.')
+        # if username is None:
+        #     raise TypeError('Users must have a username.')
 
         if email is None:
             raise TypeError('Users must have an email address.')
 
-        user = self.model(username=username, email=self.normalize_email(email))
-        user.set_password(password)
+        # user = self.model(username=username, email=self.normalize_email(email))
+        user = self.model(email=self.normalize_email(email))
+        if password:
+            user.set_password(password)
         user.save()
 
         return user
@@ -39,7 +41,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(db_index=True, max_length=255, unique=True)
+    # username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -48,7 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    # REQUIRED_FIELDS = ['email']
 
     objects = UserManager()
 
@@ -63,12 +65,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def token(self):
         return self._generate_jwt_token()
-
-    def get_full_name(self):
-        return self.username
-
-    def get_short_name(self):
-        return self.username
 
     def _generate_jwt_token(self):
         """
