@@ -10,11 +10,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        # fields = '__all__'
         fields = ['email']
-        # extra_kwargs = {
-        #     'email': {'required': True},
-        # }
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -29,14 +25,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class CreateProfileSerializer(serializers.ModelSerializer):
-    # birth_date = serializers.DateField(format='%d.%m.%Y')
     user_id = serializers.IntegerField(source='user.id', read_only=True)
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     # representation['birth_date'] = instance.birth_date.strftime('%d.%m.%Y')
-    #     representation['birth_date'] = representation['birth_date'].strftime('%d.%m.%Y')
-    #     return representation
 
     class Meta:
         model = models.Profile
@@ -60,17 +49,6 @@ class CreateProfileSerializer(serializers.ModelSerializer):
         return profile
 
 
-# class UpdatePasswordSerializer(serializers.Serializer):
-#     new_password1 = serializers.CharField(max_length=150)
-#     new_password2 = serializers.CharField(max_length=150)
-#
-#     @staticmethod
-#     def validate_password(password1, password2):
-#         return password1 == password2
-#
-#     def update(self, instance, validated_data):
-#         password1 = validated_data.get('new_password1')
-#         password2 = validated_data.get('new_password2')
-#         instance.password = self.validate_password(password1, password2)
-#         instance.save()
-#         return instance
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=150)

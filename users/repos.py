@@ -1,3 +1,5 @@
+from rest_framework.generics import get_object_or_404
+
 from . import models
 
 
@@ -9,3 +11,11 @@ class AuthRepos:
 
     def get_user_by_email(self, email) -> models.User:
         return self.model.objects.get(email=email)
+
+    def get_user_by_data(self, data):
+        user = get_object_or_404(self.model, email=data['email'])
+
+        if not user.check_password(data['password']):
+            raise self.model.DoesNotExist
+
+        return user
