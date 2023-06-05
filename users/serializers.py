@@ -59,3 +59,18 @@ class CreateProfileSerializer(serializers.ModelSerializer):
 
         return profile
 
+
+# class UpdatePasswordSerializer(serializers.Serializer):
+#     new_password1 = serializers.CharField(max_length=150)
+#     new_password2 = serializers.CharField(max_length=150)
+#
+#     @staticmethod
+#     def validate_password(password1, password2):
+#         return password1 == password2
+#
+#     def update(self, instance, validated_data):
+#         password1 = validated_data.get('new_password1')
+#         password2 = validated_data.get('new_password2')
+#         instance.password = self.validate_password(password1, password2)
+#         instance.save()
+#         return instance
