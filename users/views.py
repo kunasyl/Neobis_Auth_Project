@@ -20,7 +20,7 @@ email_services = services.EmailServices()
 class RegisterView(APIView):
     repos = repos.AuthRepos()
 
-    @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
+    @swagger_auto_schema(method='POST', request_body=serializers.CreateUserSerializer())
     @action(detail=False, methods=['POST'])
     def post(self, request, *args, **kwargs):
         context = {
@@ -97,13 +97,13 @@ def activate(request, uidb64, token):
         user.is_active = True  # активировать пользователя
         user.save()
 
-        # return redirect('form')
-        return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
+        return redirect('form')
+        # return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
     else:
         # messages.error(request, "Нерабочая ссылка!")
 
-        # return redirect('register')
-        return Response({'Error': "Нерабочая ссылка!"}, status=status.HTTP_400_BAD_REQUEST)
+        return redirect('register')
+        # return Response({'Error': "Нерабочая ссылка!"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileForm(APIView):

@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None):
+    def create_user(self, email, password=None):
         """
         Создает и возвращает пользователя с имэйлом, паролем и именем.
         """
@@ -25,14 +25,14 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, username, email, password):
+    def create_superuser(self, email, password):
         """
         Создает и возвращет пользователя с привилегиями суперадмина.
         """
         if password is None:
             raise TypeError('Superusers must have a password.')
 
-        user = self.create_user(username, email, password)
+        user = self.create_user(email, password)
         user.is_superuser = True
         user.is_staff = True
         user.save()
