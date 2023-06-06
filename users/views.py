@@ -93,18 +93,15 @@ class UpdatePasswordView(APIView):
 
 def activate(request, uidb64, token):
     user = auth_services.check_activation_link(uidb64)
+
+    # If link active
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True  # активировать пользователя
         user.save()
-
-        print('user', user)
         return redirect('form', user_id=user.id)
-        # return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
     else:
-        # messages.error(request, "Нерабочая ссылка!")
-
-        return redirect('register')
-        # return Response({'Error': "Нерабочая ссылка!"}, status=status.HTTP_400_BAD_REQUEST)
+        # return redirect('register')
+        Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileForm(APIView):
