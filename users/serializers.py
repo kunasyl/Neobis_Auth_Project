@@ -42,12 +42,12 @@ class CreateProfileSerializer(serializers.ModelSerializer):
         return obj.email
 
     def create(self, validated_data):
-        # email = validated_data.get('email')
         user_id = self.context.get('user_id')
         user = repos.get_user(user_id=user_id)
 
         profile = models.Profile.objects.create(
             user_id=user,
+            email=user.email,
             **validated_data
         )
 

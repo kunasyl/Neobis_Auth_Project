@@ -97,6 +97,7 @@ def activate(request, uidb64, token):
         user.is_active = True  # активировать пользователя
         user.save()
 
+        print('user', user)
         return redirect('form', user_id=user.id)
         # return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
     else:
@@ -111,6 +112,7 @@ class ProfileForm(APIView):
 
     @swagger_auto_schema(request_body=serializers.CreateProfileSerializer())
     def post(self, request, user_id):
+        # user_id = self.kwargs.get('user_id')
         context = {
             'user_id': user_id
         }
