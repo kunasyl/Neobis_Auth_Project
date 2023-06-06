@@ -37,13 +37,30 @@ class AuthServices:
             'refresh': str(refresh),
         }
 
+    def update_password(self, user_id, new_password):
+        # Update the user's password
+        user = self.repos.get_user(user_id=user_id)
+        user.set_password(new_password)
+        user.save()
+
+        return user
+
+
+    @staticmethod
+    # Validate that both password fields are provided and match
+    def validate_passwords(password1, password2):
+        if not password1 or not password2:
+            return {'error': 'Both password fields are required.'}
+        if password1 != password2:
+            return {'error': 'Passwords do not match.'}
+        return password1
+
 
 class EmailServices:
     # Отправка ссылки для активации аккаунта на почту
     def activateEmail(self, request, user, to_email):
         mail_subject = "Активация аккаунта"
         message = render_to_string("users/email_templates/activate_account.html", {
-        # message = render_to_string("templates/activate_account.html", {
             'user': user.email,
             'domain': get_current_site(request).domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),

@@ -14,12 +14,13 @@ from . import serializers, services, repos, models
 from users.tokens import account_activation_token
 
 auth_services = services.AuthServices()
+email_services = services.EmailServices()
 
 
 class RegisterView(APIView):
     repos = repos.AuthRepos()
 
-    @swagger_auto_schema(rmethod='POST', equest_body=serializers.CreateUserSerializer())
+    @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
     @action(detail=False, methods=['POST'])
     def post(self, request, *args, **kwargs):
         context = {
@@ -31,10 +32,38 @@ class RegisterView(APIView):
             serializer.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # put_url = reverse('set_password')
-            # return redirect(put_url)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestPasswordRecoverView(APIView):
+
+    @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
+    @action(detail=False, methods=['POST'])
+    def post(self, request, *args, **kwargs):
+        email = request.data['email']
+        email_sent = email_services.resetPassword(request=request, user_email=email)
+
+        if email_sent:
+            return Response(f"На вашу почту {email} было отправлено письмо", status=status.HTTP_200_OK)
+
+        return Response(f"Ошибка отправки письма на почту {email}.", status=status.HTTP_400_BAD_REQUEST)
+
+
+# Пользователь переходит по данной ссылке для смены пароля
+def recover_password(request, uidb64, token):
+    user = auth_services.check_activation_link(uidb64)
+
+    # If link active
+    if user is not None and account_activation_token.check_token(user, token):
+        return redirect('set_password', user_id=user.id)
+    else:
+        Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdatePasswordView(APIView):
+    repos = repos.AuthRepos()
+    services = services.AuthServices()
 
     @swagger_auto_schema(
         method='PUT',
@@ -52,19 +81,14 @@ class RegisterView(APIView):
         password1 = request.data.get('password1')
         password2 = request.data.get('password2')
 
-        # Validate that both password fields are provided and match
-        if not password1 or not password2:
-            return Response({'error': 'Both password fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
-        if password1 != password2:
-            return Response({'error': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+        validated_result = auth_services.validate_passwords(password1, password2)
+        if validated_result == password1:
+            # Update the user's password
+            self.services.update_password(user_id=user_id, new_password=password1)
 
-        # Update the user's password
-        user = self.repos.get_user(user_id=user_id)
-        print('user', user)
-        user.set_password(password1)
-        user.save()
+            return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
+        return Response(validated_result, status=status.HTTP_400_BAD_REQUEST)
 
 
 def activate(request, uidb64, token):
@@ -73,14 +97,13 @@ def activate(request, uidb64, token):
         user.is_active = True  # активировать пользователя
         user.save()
 
-        # messages.success(request, "Почта успешно подтверждена")
-        return redirect('form')
-        # return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_201_CREATED)
+        # return redirect('form')
+        return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
     else:
         # messages.error(request, "Нерабочая ссылка!")
 
-        return redirect('register')
-        # return Response({'Error': "Нерабочая ссылка!"}, status=status.HTTP_400_BAD_REQUEST)
+        # return redirect('register')
+        return Response({'Error': "Нерабочая ссылка!"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileForm(APIView):
@@ -116,7 +139,6 @@ class LoginView(APIView):
                 login(request, user)  # Log the user in
 
                 # Generate or retrieve the user's authentication token
-                # token, created = Token.objects.get_or_create(user=user)
                 token = self.create_token(request)
 
                 # Return the token and any other necessary data in the response
