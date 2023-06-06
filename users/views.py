@@ -58,7 +58,7 @@ def recover_password(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         return redirect('set_password', user_id=user.id)
     else:
-        Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePasswordView(APIView):
@@ -101,7 +101,7 @@ def activate(request, uidb64, token):
         return redirect('form', user_id=user.id)
     else:
         # return redirect('register')
-        Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileForm(APIView):
