@@ -107,7 +107,8 @@ def activate(request, uidb64, token):
 class ProfileForm(APIView):
     repos = repos.AuthRepos()
 
-    @swagger_auto_schema(request_body=serializers.CreateProfileSerializer())
+    @swagger_auto_schema(method='POST', request_body=serializers.CreateProfileSerializer())
+    @action(detail=False, methods=['POST'])
     def post(self, request, user_id):
         # user_id = self.kwargs.get('user_id')
         context = {
