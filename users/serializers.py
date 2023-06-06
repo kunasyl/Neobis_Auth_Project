@@ -26,6 +26,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class CreateProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
+    email = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Profile
@@ -34,12 +35,16 @@ class CreateProfileSerializer(serializers.ModelSerializer):
             'first_name': {'required': True},
             'last_name': {'required': True},
             'birth_date': {'required': True},
-            'email': {'required': True}
+            # 'email': {'required': True}
         }
 
+    def get_email(self, obj):
+        return obj.email
+
     def create(self, validated_data):
-        email = validated_data.get('email')
-        user = repos.get_user_by_email(email=email)
+        # email = validated_data.get('email')
+        user_id = self.context.get('user_id')
+        user = repos.get_user(user_id=user_id)
 
         profile = models.Profile.objects.create(
             user_id=user,

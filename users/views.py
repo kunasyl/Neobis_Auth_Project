@@ -97,7 +97,7 @@ def activate(request, uidb64, token):
         user.is_active = True  # активировать пользователя
         user.save()
 
-        return redirect('form')
+        return redirect('form', user_id=user.id)
         # return Response({'Success': "Почта успешно подтверждена"}, status=status.HTTP_200_OK)
     else:
         # messages.error(request, "Нерабочая ссылка!")
@@ -110,8 +110,11 @@ class ProfileForm(APIView):
     repos = repos.AuthRepos()
 
     @swagger_auto_schema(request_body=serializers.CreateProfileSerializer())
-    def post(self, request, *args, **kwargs):
-        serializer = serializers.CreateProfileSerializer(data=request.data)
+    def post(self, request, user_id):
+        context = {
+            'user_id': user_id
+        }
+        serializer = serializers.CreateProfileSerializer(data=request.data, context=context)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
 

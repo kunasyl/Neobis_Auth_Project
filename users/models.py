@@ -90,10 +90,10 @@ class Profile(models.Model):
         verbose_name=_('Пользователь')
     )
     first_name = models.CharField(
-        max_length=150, unique=True, verbose_name=_('Имя')
+        max_length=150, verbose_name=_('Имя')
     )
     last_name = models.CharField(
-        max_length=150, unique=True, verbose_name=_('Фамилия')
+        max_length=150, verbose_name=_('Фамилия')
     )
     birth_date = models.DateField(verbose_name=_('Дата рождения'))
     email = models.EmailField(unique=True, verbose_name=_('Почта'))
