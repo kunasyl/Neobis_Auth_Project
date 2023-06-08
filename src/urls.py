@@ -14,6 +14,7 @@ schema_view = get_schema_view(
       # terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="kunasyl45@gmail.com"),
       # license=openapi.License(name="BSD License"),
+      date_format="%d.%m.%Y",
    ),
    public=True,
    permission_classes=[permissions.AllowAny],

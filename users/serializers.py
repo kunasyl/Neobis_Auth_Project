@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from . import models, services, repos
 
@@ -26,7 +27,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class CreateProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
-    email = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Profile
@@ -34,24 +34,25 @@ class CreateProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True},
-            'birth_date': {'required': True},
-            # 'email': {'required': True}
+            'birth_date': {'format': '%d.%m.%Y', 'required': True},
+            'email': {'required': True}
         }
-
-    def get_email(self, obj):
-        return obj.email
 
     def create(self, validated_data):
         user_id = self.context.get('user_id')
         user = repos.get_user(user_id=user_id)
+        form_email = validated_data.pop('email')
 
-        profile = models.Profile.objects.create(
-            user_id=user,
-            email=user.email,
-            **validated_data
-        )
+        if form_email == user.email:
+            profile = models.Profile.objects.create(
+                user_id=user,
+                email=form_email,
+                **validated_data
+            )
 
-        return profile
+            return profile
+
+        raise ValidationError("Invalid email.")
 
 
 class LoginSerializer(serializers.Serializer):
