@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserManager(BaseUserManager):
@@ -96,7 +97,8 @@ class Profile(models.Model):
         max_length=150, verbose_name=_('Фамилия')
     )
     birth_date = models.DateField(verbose_name=_('Дата рождения'))
-    email = models.EmailField(unique=True, verbose_name=_('Почта'))
+    email = models.EmailField(unique=True, blank=True, null=True, verbose_name=_('Почта'))
+    phone_number = PhoneNumberField(unique=True, blank=True, null=True, verbose_name=_('Номер телефона'))
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

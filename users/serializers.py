@@ -35,24 +35,25 @@ class CreateProfileSerializer(serializers.ModelSerializer):
             'first_name': {'required': True},
             'last_name': {'required': True},
             'birth_date': {'format': '%d.%m.%Y', 'required': True},
-            'email': {'required': True}
+            # 'email': {'required': True}
         }
 
     def create(self, validated_data):
         user_id = self.context.get('user_id')
         user = repos.get_user(user_id=user_id)
-        form_email = validated_data.pop('email')
 
-        if form_email == user.email:
-            profile = models.Profile.objects.create(
-                user_id=user,
-                email=form_email,
-                **validated_data
-            )
+        if validated_data.get('email'):
+            form_email = validated_data.pop('email')
+            if form_email != user.email:
+                raise ValidationError("Invalid email.")
 
-            return profile
+        profile = models.Profile.objects.create(
+            user_id=user,
+            # email=form_email,
+            **validated_data
+        )
 
-        raise ValidationError("Invalid email.")
+        return profile
 
 
 class LoginSerializer(serializers.Serializer):
