@@ -24,6 +24,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
         return user
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        user = repos.get_user_by_email(email=instance.email)
+        data['user_id'] = user.id  # Add user ID to the response data
+        return data
+
 
 class CreateProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)

@@ -1,4 +1,6 @@
 from rest_framework.response import Response
+from django.http import HttpResponse, HttpResponseNotFound
+import json
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from rest_framework.decorators import action
@@ -37,6 +39,7 @@ class RegisterView(APIView):
 
 
 class RequestPasswordRecoverView(APIView):
+    repos = repos.AuthRepos()
 
     @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
     @action(detail=False, methods=['POST'])
@@ -45,7 +48,12 @@ class RequestPasswordRecoverView(APIView):
         email_sent = email_services.resetPassword(request=request, user_email=email)
 
         if email_sent:
-            return Response(f"На вашу почту {email} было отправлено письмо", status=status.HTTP_200_OK)
+            user = self.repos.get_user_by_email(email=email)
+            data = {
+                "msg": f"На вашу почту {email} было отправлено письмо",
+                "user_id": user.id
+            }
+            return Response(data, status=status.HTTP_200_OK)
 
         return Response(f"Ошибка отправки письма на почту {email}.", status=status.HTTP_400_BAD_REQUEST)
 
@@ -56,9 +64,13 @@ def recover_password(request, uidb64, token):
 
     # If link active
     if user is not None and account_activation_token.check_token(user, token):
-        return redirect('set_password', user_id=user.id)
+        return render(
+            request=request,
+            template_name="users/recover_password.html",
+            context={"user_id": user.id}
+        )
     else:
-        return Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
+        HttpResponseNotFound("Ссылка неактивна")
 
 
 class UpdatePasswordView(APIView):
@@ -98,10 +110,14 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True  # активировать пользователя
         user.save()
-        return redirect('form', user_id=user.id)
+        # return redirect('form', user_id=user.id)
+        return render(
+            request=request,
+            template_name="users/activate.html",
+            context={"user_id": user.id}
+        )
     else:
-        # return redirect('register')
-        return Response({'error': "Ссылка недействительна"}, status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponseNotFound("Ссылка неактивна")
 
 
 class ProfileForm(APIView):
@@ -110,7 +126,6 @@ class ProfileForm(APIView):
     @swagger_auto_schema(method='POST', request_body=serializers.CreateProfileSerializer())
     @action(detail=False, methods=['POST'])
     def post(self, request, user_id):
-        # user_id = self.kwargs.get('user_id')
         context = {
             'user_id': user_id
         }
