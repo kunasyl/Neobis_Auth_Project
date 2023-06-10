@@ -50,7 +50,7 @@ class CreateProfileSerializer(serializers.ModelSerializer):
         user = repos.get_user(user_id=user_id)
 
         if validated_data.get('email'):
-            form_email = validated_data.pop('email')
+            form_email = validated_data.get('email')
             if form_email != user.email:
                 raise ValidationError("Invalid email.")
 
