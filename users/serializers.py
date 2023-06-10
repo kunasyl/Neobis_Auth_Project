@@ -54,14 +54,9 @@ class CreateProfileSerializer(serializers.ModelSerializer):
             if form_email != user.email:
                 raise ValidationError("Invalid email.")
 
-            profile = models.Profile.objects.create(
-                user_id=user,
-                email=form_email,
-                **validated_data
-            )
-
         profile = models.Profile.objects.create(
             user_id=user,
+            # email=form_email,
             **validated_data
         )
 
