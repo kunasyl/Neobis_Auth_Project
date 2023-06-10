@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate, login
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from . import serializers, services, repos, models
+from . import serializers, services, repos, permissions
 from users.tokens import account_activation_token
 
 auth_services = services.AuthServices()
@@ -40,6 +40,7 @@ class RegisterView(APIView):
 
 class RequestPasswordRecoverView(APIView):
     repos = repos.AuthRepos()
+    permission_classes = [permissions.IsActiveUserPermission]
 
     @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
     @action(detail=False, methods=['POST'])
@@ -76,6 +77,7 @@ def recover_password(request, uidb64, token):
 class UpdatePasswordView(APIView):
     repos = repos.AuthRepos()
     services = services.AuthServices()
+    permission_classes = [permissions.IsActiveUserPermission]
 
     @swagger_auto_schema(
         method='PUT',
@@ -122,6 +124,7 @@ def activate(request, uidb64, token):
 
 class ProfileForm(APIView):
     repos = repos.AuthRepos()
+    permission_classes = [permissions.IsActiveUserPermission]
 
     @swagger_auto_schema(method='POST', request_body=serializers.CreateProfileSerializer())
     @action(detail=False, methods=['POST'])
@@ -141,6 +144,7 @@ class ProfileForm(APIView):
 class LoginView(APIView):
     repos = repos.AuthRepos()
     services = services.AuthServices()
+    permission_classes = [permissions.IsActiveUserPermission]
 
     @swagger_auto_schema(request_body=serializers.LoginSerializer())
     def post(self, request):
