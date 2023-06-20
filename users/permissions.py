@@ -16,3 +16,8 @@ class IsActiveUserPermission(BasePermission):
             raise exceptions.PermissionDenied(detail=self.message)
 
         return True
+
+
+class IsAuthorizedPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated

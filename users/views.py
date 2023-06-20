@@ -40,9 +40,9 @@ class RegisterView(APIView):
 
 class RequestPasswordRecoverView(APIView):
     repos = repos.AuthRepos()
-    # permission_classes = [permissions.IsActiveUserPermission]
+    permission_classes = [permissions.IsAuthorizedPermission]
 
-    @swagger_auto_schema(rmethod='POST', request_body=serializers.CreateUserSerializer())
+    @swagger_auto_schema(method='POST', request_body=serializers.CreateUserSerializer())
     @action(detail=False, methods=['POST'])
     def post(self, request, *args, **kwargs):
         email = request.data['email']
